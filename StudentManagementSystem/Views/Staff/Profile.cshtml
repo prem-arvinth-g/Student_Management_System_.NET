@@ -1,0 +1,62 @@
+@model StudentManagementSystem.Models.User
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <div>
+        <h2><i class="fas fa-user-tie"></i> My Profile</h2>
+        <p class="sub">@Model?.Department?.Name Department</p>
+    </div>
+    <a href="/Staff/AddSubject?staffId=@Model?.Id" class="btn-secondary">
+        <i class="fas fa-plus"></i> Add Subject
+    </a>
+</div>
+
+@if (Model == null)
+{
+    <div class="empty-state"><i class="fas fa-exclamation"></i> Profile not found.</div>
+}
+else
+{
+    <div class="profile-grid">
+        <!-- Personal Info -->
+        <div class="card profile-card">
+            <div class="card-header"><i class="fas fa-id-badge"></i> Personal Information</div>
+            <div class="info-list">
+                <div class="info-row"><span class="info-label">Name</span><span>@Model.Name</span></div>
+                <div class="info-row"><span class="info-label">Email</span><span>@Model.Email</span></div>
+                <div class="info-row"><span class="info-label">Phone</span><span>@Model.Phone</span></div>
+                <div class="info-row"><span class="info-label">Department</span><span class="badge-dept">@Model.Department?.Name</span></div>
+                <div class="info-row"><span class="info-label">Role</span><span class="user-badge staff">@Model.Role</span></div>
+            </div>
+        </div>
+
+        <!-- Subjects Taught -->
+        <div class="card">
+            <div class="card-header"><i class="fas fa-book"></i> Subjects I Teach</div>
+            @if (!Model.StaffSubjects.Any())
+            {
+                <div class="empty-mini">No subjects assigned yet. Click "Add Subject" above.</div>
+            }
+            else
+            {
+                <div class="subject-grid">
+                    @foreach (var subj in Model.StaffSubjects)
+                    {
+                        <div class="subject-card">
+                            <div class="subject-code">@subj.SubjectCode</div>
+                            <div class="subject-name">@subj.SubjectName</div>
+                            <div class="subject-meta">
+                                <span><i class="fas fa-users"></i> Year @subj.Year</span>
+                                <span><i class="fas fa-sitemap"></i> Section @subj.Section</span>
+                                <span><i class="fas fa-building"></i> @subj.Department?.Name</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}

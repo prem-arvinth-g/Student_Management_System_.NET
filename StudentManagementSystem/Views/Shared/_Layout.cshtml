@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — SMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+
+@{
+    var role = Context.Session.GetString("UserRole");
+    var userName = Context.Session.GetString("UserName");
+    var userDept = Context.Session.GetString("UserDept");
+}
+
+@if (role != null)
+{
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-graduation-cap"></i>
+            <span>EduManage</span>
+        </div>
+        <div class="nav-links">
+            <a href="/Dashboard/Index" class="nav-link"><i class="fas fa-users"></i> Students</a>
+            @if (role == "Admin")
+            {
+                <a href="/Staff/Index" class="nav-link"><i class="fas fa-chalkboard-teacher"></i> Staff</a>
+            }
+        </div>
+        <div class="nav-user">
+            <div class="user-badge @role.ToLower()">@role</div>
+            @if (role == "Staff" || role == "Admin")
+            {
+                <a href="/Staff/Profile" class="user-name">
+                    <i class="fas fa-user-circle"></i> @userName
+                    @if (!string.IsNullOrEmpty(userDept)) { <span class="dept-tag">@userDept</span> }
+                </a>
+            }
+            else
+            {
+                <span class="user-name"><i class="fas fa-user-circle"></i> @userName</span>
+            }
+            <a href="/Account/Logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </nav>
+}
+
+<main class="@(role == null ? "auth-layout" : "main-layout")">
+    @if (TempData["Success"] != null)
+    {
+        <div class="toast-success">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="toast-error">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+        </div>
+    }
+    @RenderBody()
+</main>
+
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

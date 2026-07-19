@@ -1,0 +1,100 @@
+@model StudentManagementSystem.Models.Student
+@{
+    ViewData["Title"] = Model?.Name + " — Details";
+    Layout = "_Layout";
+    var role = Context.Session.GetString("UserRole");
+}
+
+<div class="page-header">
+    <a href="/Dashboard/Index" class="btn-back"><i class="fas fa-arrow-left"></i> Back</a>
+    <div>
+        <h2>@Model?.Name</h2>
+        <p class="sub">@Model?.RegisterNumber · @Model?.Department?.Name</p>
+    </div>
+    @if (role == "Staff" || role == "Admin")
+    {
+        <a href="/Student/Edit/@Model?.Id" class="btn-primary"><i class="fas fa-edit"></i> Modify</a>
+    }
+</div>
+
+<div class="profile-grid">
+    <div class="card profile-card">
+        <div class="card-header"><i class="fas fa-id-badge"></i> Personal Information</div>
+        <div class="info-list">
+            <div class="info-row"><span class="info-label">Name</span><span>@Model?.Name</span></div>
+            <div class="info-row"><span class="info-label">Reg. Number</span><span class="badge-reg">@Model?.RegisterNumber</span></div>
+            <div class="info-row"><span class="info-label">Department</span><span class="badge-dept">@Model?.Department?.Name</span></div>
+            <div class="info-row"><span class="info-label">Year</span><span>@Model?.Year</span></div>
+            <div class="info-row"><span class="info-label">Section</span><span>@Model?.Section</span></div>
+            <div class="info-row"><span class="info-label">Email</span><span>@Model?.Email</span></div>
+            <div class="info-row"><span class="info-label">Phone</span><span>@Model?.Phone</span></div>
+            <div class="info-row"><span class="info-label">Date of Birth</span><span>@Model?.DateOfBirth.ToString("dd MMM yyyy")</span></div>
+            <div class="info-row"><span class="info-label">Address</span><span>@Model?.Address</span></div>
+        </div>
+
+        @if (role == "Staff" || role == "Admin")
+        {
+            <div class="card-actions">
+                <a href="/Student/AddAttendance/@Model?.Id" class="btn-secondary">
+                    <i class="fas fa-calendar-plus"></i> Add Attendance
+                </a>
+                <a href="/Student/AddMark/@Model?.Id" class="btn-secondary">
+                    <i class="fas fa-plus-circle"></i> Add Mark
+                </a>
+            </div>
+        }
+    </div>
+
+    <div class="side-cards">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-calendar-check"></i> Attendance</div>
+            @if (!Model!.Attendances.Any())
+            {
+                <div class="empty-mini">No attendance records yet.</div>
+            }
+            else
+            {
+                <table class="data-table">
+                    <thead><tr><th>Subject</th><th>Attended</th><th>Total</th><th>%</th></tr></thead>
+                    <tbody>
+                        @foreach (var att in Model.Attendances)
+                        {
+                            <tr>
+                                <td>@att.Subject</td>
+                                <td>@att.AttendedClasses</td>
+                                <td>@att.TotalClasses</td>
+                                <td><span class="pct @(att.Percentage >= 75 ? "pct-good" : "pct-low")">@att.Percentage%</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-star"></i> Marks</div>
+            @if (!Model.Marks.Any())
+            {
+                <div class="empty-mini">No marks recorded yet.</div>
+            }
+            else
+            {
+                <table class="data-table">
+                    <thead><tr><th>Subject</th><th>Type</th><th>Score</th><th>Max</th><th>%</th></tr></thead>
+                    <tbody>
+                        @foreach (var mark in Model.Marks)
+                        {
+                            <tr>
+                                <td>@mark.Subject</td>
+                                <td><span class="badge-exam">@mark.ExamType</span></td>
+                                <td>@mark.Score</td>
+                                <td>@mark.MaxScore</td>
+                                <td><span class="pct @(mark.Percentage >= 50 ? "pct-good" : "pct-low")">@mark.Percentage%</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

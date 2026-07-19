@@ -1,0 +1,128 @@
+@model List<StudentManagementSystem.Models.User>
+@{
+    ViewData["Title"] = "Staff Management";
+    Layout = "_Layout";
+    var departments = ViewBag.Departments as List<StudentManagementSystem.Models.Department>;
+    string selectedDept = ViewBag.SelectedDept ?? "";
+    string search = ViewBag.Search ?? "";
+}
+
+<div class="page-header">
+    <div>
+        <h2><i class="fas fa-chalkboard-teacher"></i> Staff Details</h2>
+        <p class="sub">@Model.Count staff member(s)</p>
+    </div>
+</div>
+
+<div style="display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:1.5rem;">
+    <!-- Filter Bar -->
+    <div class="filter-bar" style="flex-grow:1; margin-bottom:0;">
+        <form method="get" action="/Staff/Index" class="filter-form">
+            <div class="search-wrap">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" value="@search" placeholder="Search by name or email..." class="search-input" />
+            </div>
+            <select name="dept" class="filter-select">
+                <option value="">All Departments</option>
+                @foreach (var d in departments ?? new())
+                {
+                    <option value="@d.Name" selected="@(selectedDept == d.Name ? "selected" : null)">@d.Name</option>
+                }
+            </select>
+            <button type="submit" class="btn-filter"><i class="fas fa-filter"></i> Filter</button>
+            @if (!string.IsNullOrEmpty(selectedDept) || !string.IsNullOrEmpty(search))
+            {
+                <a href="/Staff/Index" class="btn-clear"><i class="fas fa-times"></i> Clear</a>
+            }
+        </form>
+    </div>
+    <a href="/Staff/Create" class="btn-primary" title="Add Staff" style="border-radius:50%; width:48px; height:48px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <i class="fas fa-plus"></i>
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <i class="fas fa-user-slash"></i>
+        <p>No staff members yet.</p>
+        <a href="/Staff/Create" class="btn-primary">Create First Staff</a>
+    </div>
+}
+else
+{
+    <div class="card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Staff Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th style="text-align:right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var staff in Model)
+                {
+                    <tr>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="student-avatar dept-@(staff.Department?.Name?.ToLower())" style="width:32px; height:32px; font-size:0.9rem;">
+                                    @staff.Name[0]
+                                </div>
+                                <span style="font-weight:600">@staff.Name</span>
+                            </div>
+                        </td>
+                        <td>@staff.Email</td>
+                        <td><span class="badge-dept">@staff.Department?.Name</span></td>
+                        <td style="text-align:right">
+                            <div style="position:relative; display:inline-block">
+                                <button class="dots-btn" onclick="toggleMenu(@staff.Id, event)">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu" id="menu-@staff.Id" style="text-align:left">
+                                    <a href="/Staff/Edit/@staff.Id"><i class="fas fa-edit"></i> Edit</a>
+                                    <button class="delete-option" onclick="confirmDelete(@staff.Id, '@staff.Name')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<div class="modal-overlay" id="deleteModal" style="display:none">
+    <div class="modal-box">
+        <i class="fas fa-exclamation-triangle modal-icon warn"></i>
+        <h3>Confirm Delete</h3>
+        <p id="deleteMsg"></p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <form id="deleteForm" method="post" style="display:inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function toggleMenu(id, e) {
+    e.stopPropagation();
+    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+    document.getElementById('menu-' + id).classList.toggle('show');
+}
+document.addEventListener('click', () => document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show')));
+function confirmDelete(id, name) {
+    document.getElementById('deleteMsg').textContent = `Delete staff "${name}"?`;
+    document.getElementById('deleteForm').action = '/Staff/Delete/' + id;
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+function closeModal() { document.getElementById('deleteModal').style.display = 'none'; }
+</script>
+}

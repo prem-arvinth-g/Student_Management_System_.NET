@@ -1,0 +1,114 @@
+@model StudentManagementSystem.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_Layout";
+}
+
+<div class="login-page">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>EduManage</h1>
+            <p>Student Management System</p>
+        </div>
+
+        <!-- Role Tabs -->
+        <div class="role-tabs">
+            <button class="role-tab @(Model.Role == "Student" ? "active" : "")" onclick="switchRole('Student')">
+                <i class="fas fa-user-graduate"></i> Student
+            </button>
+            <button class="role-tab @(Model.Role == "Staff" ? "active" : "")" onclick="switchRole('Staff')">
+                <i class="fas fa-chalkboard-teacher"></i> Staff
+            </button>
+            <button class="role-tab @(Model.Role == "Admin" ? "active" : "")" onclick="switchRole('Admin')">
+                <i class="fas fa-shield-alt"></i> Admin
+            </button>
+        </div>
+
+        <form asp-action="Login" asp-controller="Account" method="post" id="loginForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Role" id="roleInput" />
+
+            <!-- Validation summary -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="error-box">
+                    @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <p><i class="fas fa-exclamation-triangle"></i> @err.ErrorMessage</p>
+                    }
+                </div>
+            }
+
+            <!-- Student Login Fields -->
+            <div id="studentFields" class="login-fields" style="display:@(Model.Role == "Student" ? "block" : "none")">
+                <div class="form-group">
+                    <label><i class="fas fa-id-card"></i> Register Number</label>
+                    <input asp-for="RegisterNumber" class="form-input" placeholder="e.g. 22ECE001" id="regNo" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar"></i> Date of Birth</label>
+                    <input asp-for="DateOfBirth" type="date" class="form-input" id="dob" />
+                </div>
+            </div>
+
+            <!-- Staff / Admin Login Fields -->
+            <div id="staffFields" class="login-fields" style="display:@(Model.Role != "Student" ? "block" : "none")">
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email Address</label>
+                    <input asp-for="Email" class="form-input" placeholder="staff@school.edu" id="email" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <div class="password-wrap">
+                        <input asp-for="Password" type="password" class="form-input" placeholder="Enter password" id="password" />
+                        <button type="button" class="toggle-pass" onclick="togglePassword()">
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </form>
+
+        <p class="login-footer">
+            <i class="fas fa-info-circle"></i>
+            Admin: admin@@sms.com / Admin@@123
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function switchRole(role) {
+    document.getElementById('roleInput').value = role;
+    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+    event.target.closest('.role-tab').classList.add('active');
+
+    if (role === 'Student') {
+        document.getElementById('studentFields').style.display = 'block';
+        document.getElementById('staffFields').style.display = 'none';
+    } else {
+        document.getElementById('studentFields').style.display = 'none';
+        document.getElementById('staffFields').style.display = 'block';
+    }
+}
+
+function togglePassword() {
+    const pwd = document.getElementById('password');
+    const icon = document.getElementById('eyeIcon');
+    if (pwd.type === 'password') {
+        pwd.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        pwd.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+</script>
+}

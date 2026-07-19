@@ -1,0 +1,104 @@
+@model StudentManagementSystem.Models.Student
+@{
+    ViewData["Title"] = "My Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <div>
+        <h2><i class="fas fa-user-circle"></i> My Profile</h2>
+        <p class="sub">Welcome back, @Model?.Name!</p>
+    </div>
+</div>
+
+@if (Model == null)
+{
+    <div class="empty-state"><i class="fas fa-exclamation"></i> Profile not found.</div>
+}
+else
+{
+    <div class="profile-grid">
+        <!-- Personal Info Card -->
+        <div class="card profile-card">
+            <div class="card-header"><i class="fas fa-id-badge"></i> Personal Information</div>
+            <div class="info-list">
+                <div class="info-row"><span class="info-label">Name</span><span>@Model.Name</span></div>
+                <div class="info-row"><span class="info-label">Reg. Number</span><span class="badge-reg">@Model.RegisterNumber</span></div>
+                <div class="info-row"><span class="info-label">Department</span><span class="badge-dept">@Model.Department?.Name</span></div>
+                <div class="info-row"><span class="info-label">Year</span><span>@Model.Year</span></div>
+                <div class="info-row"><span class="info-label">Section</span><span>@Model.Section</span></div>
+                <div class="info-row"><span class="info-label">Email</span><span>@Model.Email</span></div>
+                <div class="info-row"><span class="info-label">Phone</span><span>@Model.Phone</span></div>
+                <div class="info-row"><span class="info-label">Date of Birth</span><span>@Model.DateOfBirth.ToString("dd MMM yyyy")</span></div>
+                <div class="info-row"><span class="info-label">Address</span><span>@Model.Address</span></div>
+            </div>
+        </div>
+
+        <div class="side-cards">
+            <!-- Attendance Card -->
+            <div class="card">
+                <div class="card-header"><i class="fas fa-calendar-check"></i> Attendance</div>
+                @if (!Model.Attendances.Any())
+                {
+                    <div class="empty-mini">No attendance records yet.</div>
+                }
+                else
+                {
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Subject</th><th>Attended</th><th>Total</th><th>%</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var att in Model.Attendances)
+                            {
+                                <tr>
+                                    <td>@att.Subject</td>
+                                    <td>@att.AttendedClasses</td>
+                                    <td>@att.TotalClasses</td>
+                                    <td>
+                                        <span class="pct @(att.Percentage >= 75 ? "pct-good" : "pct-low")">
+                                            @att.Percentage%
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+
+            <!-- Marks Card -->
+            <div class="card">
+                <div class="card-header"><i class="fas fa-star"></i> Marks</div>
+                @if (!Model.Marks.Any())
+                {
+                    <div class="empty-mini">No marks recorded yet.</div>
+                }
+                else
+                {
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Subject</th><th>Type</th><th>Score</th><th>Max</th><th>%</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var mark in Model.Marks)
+                            {
+                                <tr>
+                                    <td>@mark.Subject</td>
+                                    <td><span class="badge-exam">@mark.ExamType</span></td>
+                                    <td>@mark.Score</td>
+                                    <td>@mark.MaxScore</td>
+                                    <td>
+                                        <span class="pct @(mark.Percentage >= 50 ? "pct-good" : "pct-low")">
+                                            @mark.Percentage%
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+}
